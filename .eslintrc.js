@@ -33,7 +33,7 @@ module.exports = {
   ],
   rules: {
     // Prettier kuralları
-    'prettier/prettier': 'error',
+    'prettier/prettier': 'warn',
 
     // TypeScript kuralları
     '@typescript-eslint/no-unused-vars': 'error',

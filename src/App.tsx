@@ -1,6 +1,7 @@
 import React from 'react';
 
 import './App.css';
+
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 import MainPageContainer from './pages/main/Main.page.container';
@@ -12,7 +13,7 @@ function App() {
       <Router>
         <Routes>
           <Route path='/' element={<MainPageContainer />} />
-          <Route path='/movie/:imdbID' element={<UserDetailsPageContainer />} />
+          <Route path='/user/:userId' element={<UserDetailsPageContainer />} />
         </Routes>
       </Router>
     </div>
