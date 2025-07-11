@@ -5,6 +5,10 @@ export const UserListContainer = styled.div`
   display: flex;
   flex-direction: column;
   background-color: #f5f5f5;
+  @media (max-width: 600px) {
+    height: auto;
+    min-height: 100vh;
+  }
 `;
 
 export const Header = styled.header`
@@ -12,6 +16,10 @@ export const Header = styled.header`
   color: white;
   padding: 1rem 2rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  @media (max-width: 600px) {
+    padding: 1rem 1rem;
+    font-size: 1.2rem;
+  }
 `;
 
 export const HeaderTitle = styled.h1`
@@ -29,6 +37,12 @@ export const ControlsSection = styled.div`
   align-items: center;
   flex-wrap: wrap;
   gap: 1rem;
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1rem 0.5rem;
+    gap: 0.5rem;
+  }
 `;
 
 export const SearchInput = styled.input`
@@ -46,17 +60,27 @@ export const SearchInput = styled.input`
 `;
 
 export const FilterSelect = styled.select`
-  padding: 0.5rem 1rem 0.5rem 1rem;
+  padding: 0.5rem 2.5rem 0.5rem 1rem;
   border: 2px solid #e0e0e0;
   border-radius: 8px;
   font-size: 1rem;
   background: white;
   cursor: pointer;
   transition: border-color 0.2s ease;
-
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url('data:image/svg+xml;utf8,<svg fill="none" height="20" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5" stroke="%23667eea" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 20px 20px;
   &:focus {
     outline: none;
     border-color: #667eea;
+  }
+  @media (max-width: 600px) {
+    padding: 0.35rem 2rem 0.35rem 0.7rem;
+    font-size: 0.95rem;
   }
 `;
 
@@ -137,6 +161,9 @@ export const ContentArea = styled.main`
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  @media (max-width: 600px) {
+    padding: 0;
+  }
 `;
 
 export const UserGrid = styled.div`
@@ -146,11 +173,20 @@ export const UserGrid = styled.div`
   padding: 1rem;
   overflow-y: auto;
   height: 100%;
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
 `;
 
 export const UserTable = styled.div`
-  overflow-y: auto;
+  overflow-x: auto;
   height: 100%;
+  @media (max-width: 600px) {
+    min-width: 400px;
+    height: auto;
+  }
 `;
 
 export const Table = styled.table`
@@ -195,6 +231,15 @@ export const PaginationContainer = styled.div`
   padding: 1rem;
   background: white;
   border-top: 1px solid #e0e0e0;
+  @media (max-width: 600px) {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    padding: 0.5rem 0.25rem;
+    width: 100vw;
+    min-width: 390px;
+    box-sizing: border-box;
+  }
 `;
 
 export const PaginationButton = styled.button<{ active?: boolean }>`
@@ -205,15 +250,18 @@ export const PaginationButton = styled.button<{ active?: boolean }>`
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
-
+  font-size: 1rem;
   &:hover:not(:disabled) {
     border-color: #667eea;
     background: ${props => (props.active ? '#5a6fd8' : '#f8f9ff')};
   }
-
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+  @media (max-width: 600px) {
+    padding: 0.35rem 0.7rem;
+    font-size: 0.95rem;
   }
 `;
 
