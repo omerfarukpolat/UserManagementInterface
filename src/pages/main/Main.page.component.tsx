@@ -29,7 +29,7 @@ import UserCard from '../../components/UserCard';
 import { VIEW_MODE, PAGINATION_MODE, USER_ROLE } from '../../constants/filters';
 import { User, UserFilters } from '../../types/user.types';
 
-interface MainPageComponentProps {
+type MainPageComponentProps = {
   users: User[];
   filteredUsers: User[];
   paginatedUsers: User[];
@@ -45,7 +45,7 @@ interface MainPageComponentProps {
   onUserDetailsClick: (userId: string) => void;
   onItemsPerPageChange: (itemsPerPage: 10 | 20) => void;
   onAddUserClick: () => void;
-}
+};
 
 const MainPageComponent: React.FC<MainPageComponentProps> = ({
   paginatedUsers,

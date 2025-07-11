@@ -1,10 +1,14 @@
+import { faker } from '@faker-js/faker';
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Modal from '../../components/Modal';
 import { useUrlParams } from '../../hooks/useUrlParams';
 import { initializeUsers } from '../../services/userService';
 import { User, UserRole } from '../../types/user.types';
-
+import AddUserForm from './AddUserForm';
 import MainPageComponent from './Main.page.component';
+
+const LOCAL_STORAGE_KEY = 'users';
 
 const MainPageContainer: React.FC = () => {
   const navigate = useNavigate();
@@ -12,19 +16,32 @@ const MainPageContainer: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isPaginationChanging, setIsPaginationChanging] = useState(false);
+  const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
 
   useEffect(() => {
     const loadUsers = () => {
       setIsLoading(true);
       setTimeout(() => {
-        const loadedUsers = initializeUsers();
+        const localUsers = localStorage.getItem(LOCAL_STORAGE_KEY);
+        let loadedUsers: User[];
+        if (localUsers) {
+          loadedUsers = JSON.parse(localUsers);
+        } else {
+          loadedUsers = initializeUsers();
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(loadedUsers));
+        }
         setUsers(loadedUsers);
         setIsLoading(false);
       }, 500);
     };
-
     loadUsers();
   }, []);
+
+  useEffect(() => {
+    if (!isLoading) {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(users));
+    }
+  }, [users, isLoading]);
 
   const filteredUsers = useMemo(() => {
     return users.filter(user => {
@@ -32,7 +49,6 @@ const MainPageContainer: React.FC = () => {
         user.name.toLowerCase().includes(filters.search.toLowerCase()) ||
         user.email.toLowerCase().includes(filters.search.toLowerCase());
       const matchesRole = filters.role === 'all' || user.role === filters.role;
-
       return matchesSearch && matchesRole;
     });
   }, [users, filters.search, filters.role]);
@@ -41,7 +57,6 @@ const MainPageContainer: React.FC = () => {
     if (filters.paginationMode === 'all') {
       return filteredUsers;
     }
-
     const startIndex = (filters.currentPage - 1) * filters.itemsPerPage;
     const endIndex = startIndex + filters.itemsPerPage;
     return filteredUsers.slice(startIndex, endIndex);
@@ -70,11 +85,8 @@ const MainPageContainer: React.FC = () => {
   const handlePaginationModeChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
-    console.log('Pagination mode change triggered:', e.target.checked);
     if (isPaginationChanging) return;
-
     setIsPaginationChanging(true);
-
     setTimeout(() => {
       updateFilters({
         paginationMode: e.target.checked ? 'all' : 'paginated',
@@ -96,7 +108,27 @@ const MainPageContainer: React.FC = () => {
     navigate(`/user/${userId}`);
   };
 
-  const handleAddUserClick = () => {};
+  const handleAddUserClick = () => setIsAddUserModalOpen(true);
+  const handleCloseAddUserModal = () => setIsAddUserModalOpen(false);
+  const handleAddUserSubmit = (data: {
+    name: string;
+    email: string;
+    password: string;
+    role: string;
+    active: boolean;
+  }) => {
+    const newUser: User & { latitude: number; longitude: number } = {
+      id: faker.string.uuid(),
+      name: data.name,
+      email: data.email,
+      role: data.role as UserRole,
+      creationDate: new Date().toISOString(),
+      latitude: faker.location.latitude(),
+      longitude: faker.location.longitude(),
+    };
+    setUsers(prev => [newUser, ...prev]);
+    setIsAddUserModalOpen(false);
+  };
 
   return (
     <>
@@ -117,6 +149,12 @@ const MainPageContainer: React.FC = () => {
         onUserDetailsClick={handleUserDetailsClick}
         onAddUserClick={handleAddUserClick}
       />
+      <Modal open={isAddUserModalOpen} onClose={handleCloseAddUserModal}>
+        <AddUserForm
+          onSubmit={handleAddUserSubmit}
+          onCancel={handleCloseAddUserModal}
+        />
+      </Modal>
     </>
   );
 };

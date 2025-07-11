@@ -13,10 +13,10 @@ import {
 } from './styled/UserCard.styled';
 import { RoleBadge } from './styled/UserList.styled';
 
-interface UserCardProps {
+type UserCardProps = {
   user: User;
   onDetailsClick?: (userId: string) => void;
-}
+};
 
 const UserCard: React.FC<UserCardProps> = ({ user, onDetailsClick }) => {
   const navigate = useNavigate();
