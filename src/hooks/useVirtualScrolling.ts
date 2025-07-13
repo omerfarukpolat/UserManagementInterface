@@ -1,0 +1,63 @@
+import { useState, useEffect, useMemo, useCallback } from 'react';
+
+interface UseVirtualScrollingProps<T> {
+  items: T[];
+  itemHeight: number;
+  containerHeight: number;
+  overscan?: number;
+}
+
+interface VirtualScrollingResult<T> {
+  virtualItems: T[];
+  totalHeight: number;
+  scrollTop: number;
+  setScrollTop: (scrollTop: number) => void;
+  startIndex: number;
+  endIndex: number;
+}
+
+export function useVirtualScrolling<T>({
+  items,
+  itemHeight,
+  containerHeight,
+  overscan = 5,
+}: UseVirtualScrollingProps<T>): VirtualScrollingResult<T> {
+  const [scrollTop, setScrollTop] = useState(0);
+
+  const { startIndex, endIndex } = useMemo(() => {
+    const start = Math.max(0, Math.floor(scrollTop / itemHeight) - overscan);
+    const end = Math.min(
+      items.length - 1,
+      Math.floor((scrollTop + containerHeight) / itemHeight) + overscan
+    );
+    return { startIndex: start, endIndex: end };
+  }, [scrollTop, itemHeight, containerHeight, overscan, items.length]);
+
+  const virtualItems = useMemo(() => {
+    if (items.length === 0) return [];
+    return items.slice(startIndex, endIndex + 1);
+  }, [items, startIndex, endIndex]);
+
+  const totalHeight = useMemo(() => {
+    return items.length * itemHeight;
+  }, [items.length, itemHeight]);
+
+  const setScrollTopCallback = useCallback((newScrollTop: number) => {
+    setScrollTop(newScrollTop);
+  }, []);
+
+  useEffect(() => {
+    if (items.length === 0) {
+      setScrollTop(0);
+    }
+  }, [items.length]);
+
+  return {
+    virtualItems,
+    totalHeight,
+    scrollTop,
+    setScrollTop: setScrollTopCallback,
+    startIndex,
+    endIndex,
+  };
+}

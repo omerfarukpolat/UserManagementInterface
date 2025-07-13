@@ -180,49 +180,6 @@ export const UserGrid = styled.div`
   }
 `;
 
-export const UserTable = styled.div`
-  overflow-x: auto;
-  height: 100%;
-  @media (max-width: 600px) {
-    min-width: 400px;
-    height: auto;
-  }
-`;
-
-export const Table = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  background: white;
-`;
-
-export const TableHeader = styled.thead`
-  background: #f8f9fa;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-`;
-
-export const TableRow = styled.tr`
-  border-bottom: 1px solid #e0e0e0;
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: #f8f9ff;
-  }
-`;
-
-export const TableCell = styled.td`
-  padding: 1rem;
-  text-align: left;
-`;
-
-export const TableHeaderCell = styled.th`
-  padding: 1rem;
-  text-align: left;
-  font-weight: 600;
-  color: #333;
-`;
-
 export const PaginationContainer = styled.div`
   display: flex;
   justify-content: center;

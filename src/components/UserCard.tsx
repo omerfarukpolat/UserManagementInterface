@@ -1,26 +1,26 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { User } from '../types/user.types';
-import {
-  Card,
-  CardHeader,
-  UserName,
-  CardContent,
-  InfoRow,
-  InfoLabel,
-  InfoValue,
-  DetailsButton,
-} from './styled/UserCard.styled';
 import { RoleBadge } from './styled/UserList.styled';
+import {
+  UserCardContainer,
+  UserCardHeader,
+  UserCardName,
+  UserCardEmail,
+  UserCardRoleSection,
+  UserCardFooter,
+} from './styled/VirtualScrolling.styled';
 
-type UserCardProps = {
+interface UserCardProps {
   user: User;
-  onDetailsClick?: (userId: string) => void;
-};
+  onDetailsClick: () => void;
+  minHeight?: string;
+}
 
-const UserCard: React.FC<UserCardProps> = ({ user, onDetailsClick }) => {
-  const navigate = useNavigate();
-
+const UserCard: React.FC<UserCardProps> = ({
+  user,
+  onDetailsClick,
+  minHeight,
+}) => {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -29,32 +29,19 @@ const UserCard: React.FC<UserCardProps> = ({ user, onDetailsClick }) => {
     });
   };
 
-  const handleDetailsClick = () => {
-    if (onDetailsClick) {
-      onDetailsClick(user.id);
-    } else {
-      navigate(`/user/${user.id}`);
-    }
-  };
-
   return (
-    <Card>
-      <CardHeader>
-        <UserName>{user.name}</UserName>
+    <UserCardContainer onClick={onDetailsClick} minHeight={minHeight}>
+      <UserCardHeader>
+        <UserCardName>{user.name}</UserCardName>
+        <UserCardEmail>{user.email}</UserCardEmail>
+      </UserCardHeader>
+
+      <UserCardRoleSection>
         <RoleBadge role={user.role}>{user.role}</RoleBadge>
-      </CardHeader>
-      <CardContent>
-        <InfoRow>
-          <InfoLabel>Email:</InfoLabel>
-          <InfoValue>{user.email}</InfoValue>
-        </InfoRow>
-        <InfoRow>
-          <InfoLabel>Created:</InfoLabel>
-          <InfoValue>{formatDate(user.creationDate)}</InfoValue>
-        </InfoRow>
-      </CardContent>
-      <DetailsButton onClick={handleDetailsClick}>View Details</DetailsButton>
-    </Card>
+      </UserCardRoleSection>
+
+      <UserCardFooter>Created: {formatDate(user.creationDate)}</UserCardFooter>
+    </UserCardContainer>
   );
 };
 

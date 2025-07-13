@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import {
   UserListContainer,
   Header,
@@ -13,21 +13,34 @@ import {
   ToggleInput,
   ContentArea,
   UserGrid,
-  UserTable,
-  Table,
-  TableHeader,
-  TableRow,
-  TableCell,
-  TableHeaderCell,
   PaginationContainer,
   PaginationButton,
   LoadingSpinner,
   RoleBadge,
   TableActionButton,
 } from '../../components/styled/UserList.styled';
+import {
+  VirtualScrollContainer,
+  VirtualContentWrapper,
+  VirtualItemsContainer,
+  VirtualTableContainer,
+  VirtualTableContent,
+  VirtualTableInner,
+  VirtualTableRowFixed,
+  VirtualSpacerRow,
+  VirtualSpacerCell,
+  EnhancedTable,
+  EnhancedTableHeader,
+  EnhancedTableHeaderRow,
+  EnhancedTableHeaderCell,
+  EnhancedTableBody,
+  EnhancedTableRow,
+  EnhancedTableCell,
+} from '../../components/styled/VirtualScrolling.styled';
 import UserCard from '../../components/UserCard';
 import { VIEW_MODE, PAGINATION_MODE, USER_ROLE } from '../../constants/filters';
 import { User, UserFilters } from '../../types/user.types';
+import { useVirtualScrolling } from '../../hooks/useVirtualScrolling';
 
 type MainPageComponentProps = {
   users: User[];
@@ -48,6 +61,7 @@ type MainPageComponentProps = {
 };
 
 const MainPageComponent: React.FC<MainPageComponentProps> = ({
+  filteredUsers,
   paginatedUsers,
   filters,
   isLoading,
@@ -62,12 +76,43 @@ const MainPageComponent: React.FC<MainPageComponentProps> = ({
   onItemsPerPageChange,
   onAddUserClick,
 }) => {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const tableVirtual = useVirtualScrolling({
+    items:
+      filters.paginationMode === PAGINATION_MODE.ALL
+        ? filteredUsers
+        : paginatedUsers,
+    itemHeight: 60,
+    containerHeight: 600,
+    overscan: 10,
+  });
+
+  const cardVirtual = useVirtualScrolling({
+    items:
+      filters.paginationMode === PAGINATION_MODE.ALL
+        ? filteredUsers
+        : paginatedUsers,
+    itemHeight: 200,
+    containerHeight: 600,
+    overscan: 5,
+  });
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
     });
+  };
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const scrollTop = e.currentTarget.scrollTop;
+    if (filters.viewMode === VIEW_MODE.TABLE) {
+      tableVirtual.setScrollTop(scrollTop);
+    } else {
+      cardVirtual.setScrollTop(scrollTop);
+    }
   };
 
   if (isLoading) {
@@ -78,10 +123,14 @@ const MainPageComponent: React.FC<MainPageComponentProps> = ({
     );
   }
 
+  const shouldUseVirtualScrolling =
+    filters.paginationMode === PAGINATION_MODE.ALL &&
+    filteredUsers.length > 100;
+
   return (
     <UserListContainer>
       <Header>
-        <HeaderTitle>User List</HeaderTitle>
+        <HeaderTitle>User List ({filteredUsers.length} users)</HeaderTitle>
       </Header>
 
       <ControlsSection>
@@ -153,48 +202,151 @@ const MainPageComponent: React.FC<MainPageComponentProps> = ({
         {isPaginationChanging ? (
           <LoadingSpinner>Changing pagination mode...</LoadingSpinner>
         ) : filters.viewMode === VIEW_MODE.CARD ? (
-          <UserGrid>
-            {paginatedUsers.map(user => (
-              <UserCard
-                key={user.id}
-                user={user}
-                onDetailsClick={() => onUserDetailsClick(user.id)}
-              />
-            ))}
-          </UserGrid>
+          shouldUseVirtualScrolling ? (
+            <VirtualScrollContainer
+              ref={scrollContainerRef}
+              onScroll={handleScroll}
+            >
+              <VirtualContentWrapper totalHeight={cardVirtual.totalHeight}>
+                <VirtualItemsContainer
+                  translateY={cardVirtual.startIndex * 200}
+                >
+                  <UserGrid>
+                    {cardVirtual.virtualItems.map(user => (
+                      <UserCard
+                        key={user.id}
+                        user={user}
+                        onDetailsClick={() => onUserDetailsClick(user.id)}
+                        minHeight='200px'
+                      />
+                    ))}
+                  </UserGrid>
+                </VirtualItemsContainer>
+              </VirtualContentWrapper>
+            </VirtualScrollContainer>
+          ) : (
+            <UserGrid>
+              {paginatedUsers.map(user => (
+                <UserCard
+                  key={user.id}
+                  user={user}
+                  onDetailsClick={() => onUserDetailsClick(user.id)}
+                />
+              ))}
+            </UserGrid>
+          )
+        ) : shouldUseVirtualScrolling ? (
+          <VirtualTableContainer onScroll={handleScroll}>
+            <EnhancedTable>
+              <EnhancedTableHeader>
+                <EnhancedTableHeaderRow>
+                  <EnhancedTableHeaderCell align='left' width='20%'>
+                    Name
+                  </EnhancedTableHeaderCell>
+                  <EnhancedTableHeaderCell align='left' width='30%'>
+                    E-mail
+                  </EnhancedTableHeaderCell>
+                  <EnhancedTableHeaderCell align='center' width='17%'>
+                    Role
+                  </EnhancedTableHeaderCell>
+                  <EnhancedTableHeaderCell align='left' width='20%'>
+                    Creation Date
+                  </EnhancedTableHeaderCell>
+                  <EnhancedTableHeaderCell align='center' width='20%'>
+                    Actions
+                  </EnhancedTableHeaderCell>
+                </EnhancedTableHeaderRow>
+              </EnhancedTableHeader>
+              <EnhancedTableBody>
+                <VirtualSpacerRow totalHeight={tableVirtual.totalHeight}>
+                  <VirtualSpacerCell colSpan={5}>
+                    <VirtualTableContent
+                      translateY={tableVirtual.startIndex * 60}
+                    >
+                      <VirtualTableInner>
+                        <tbody>
+                          {tableVirtual.virtualItems.map(user => (
+                            <VirtualTableRowFixed key={user.id}>
+                              <EnhancedTableCell align='left'>
+                                {user.name}
+                              </EnhancedTableCell>
+                              <EnhancedTableCell align='left'>
+                                {user.email}
+                              </EnhancedTableCell>
+                              <EnhancedTableCell align='center'>
+                                <RoleBadge role={user.role}>
+                                  {user.role}
+                                </RoleBadge>
+                              </EnhancedTableCell>
+                              <EnhancedTableCell align='left'>
+                                {formatDate(user.creationDate)}
+                              </EnhancedTableCell>
+                              <EnhancedTableCell align='center'>
+                                <TableActionButton
+                                  onClick={() => onUserDetailsClick(user.id)}
+                                >
+                                  Details
+                                </TableActionButton>
+                              </EnhancedTableCell>
+                            </VirtualTableRowFixed>
+                          ))}
+                        </tbody>
+                      </VirtualTableInner>
+                    </VirtualTableContent>
+                  </VirtualSpacerCell>
+                </VirtualSpacerRow>
+              </EnhancedTableBody>
+            </EnhancedTable>
+          </VirtualTableContainer>
         ) : (
-          <UserTable>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHeaderCell>Name</TableHeaderCell>
-                  <TableHeaderCell>E-mail</TableHeaderCell>
-                  <TableHeaderCell>Role</TableHeaderCell>
-                  <TableHeaderCell>Creation Date</TableHeaderCell>
-                  <TableHeaderCell></TableHeaderCell>
-                </TableRow>
-              </TableHeader>
-              <tbody>
+          <VirtualTableContainer>
+            <EnhancedTable>
+              <EnhancedTableHeader>
+                <EnhancedTableHeaderRow>
+                  <EnhancedTableHeaderCell align='left' width='25%'>
+                    Name
+                  </EnhancedTableHeaderCell>
+                  <EnhancedTableHeaderCell align='left' width='30%'>
+                    E-mail
+                  </EnhancedTableHeaderCell>
+                  <EnhancedTableHeaderCell align='center' width='15%'>
+                    Role
+                  </EnhancedTableHeaderCell>
+                  <EnhancedTableHeaderCell align='left' width='20%'>
+                    Creation Date
+                  </EnhancedTableHeaderCell>
+                  <EnhancedTableHeaderCell align='center' width='10%'>
+                    Actions
+                  </EnhancedTableHeaderCell>
+                </EnhancedTableHeaderRow>
+              </EnhancedTableHeader>
+              <EnhancedTableBody>
                 {paginatedUsers.map(user => (
-                  <TableRow key={user.id}>
-                    <TableCell>{user.name}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>
+                  <EnhancedTableRow key={user.id}>
+                    <EnhancedTableCell align='left'>
+                      {user.name}
+                    </EnhancedTableCell>
+                    <EnhancedTableCell align='left'>
+                      {user.email}
+                    </EnhancedTableCell>
+                    <EnhancedTableCell align='center'>
                       <RoleBadge role={user.role}>{user.role}</RoleBadge>
-                    </TableCell>
-                    <TableCell>{formatDate(user.creationDate)}</TableCell>
-                    <TableCell>
+                    </EnhancedTableCell>
+                    <EnhancedTableCell align='left'>
+                      {formatDate(user.creationDate)}
+                    </EnhancedTableCell>
+                    <EnhancedTableCell align='center'>
                       <TableActionButton
                         onClick={() => onUserDetailsClick(user.id)}
                       >
                         Details
                       </TableActionButton>
-                    </TableCell>
-                  </TableRow>
+                    </EnhancedTableCell>
+                  </EnhancedTableRow>
                 ))}
-              </tbody>
-            </Table>
-          </UserTable>
+              </EnhancedTableBody>
+            </EnhancedTable>
+          </VirtualTableContainer>
         )}
       </ContentArea>
 
