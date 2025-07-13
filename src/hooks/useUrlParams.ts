@@ -17,17 +17,19 @@ export const useUrlParams = () => {
       (searchParams.get(SEARCH_PARAMS.PAGINATION_MODE) as
         | typeof PAGINATION_MODE.PAGINATED
         | typeof PAGINATION_MODE.ALL) || PAGINATION_MODE.PAGINATED;
-    
+
     const currentPage =
       paginationMode === PAGINATION_MODE.PAGINATED
         ? currentPageParam
           ? parseInt(currentPageParam)
           : 1
         : 1;
-    
+
     const itemsPerPage =
       paginationMode === PAGINATION_MODE.PAGINATED
-        ? parseInt(searchParams.get(SEARCH_PARAMS.ITEMS_PER_PAGE) || '10') as 10 | 20
+        ? (parseInt(searchParams.get(SEARCH_PARAMS.ITEMS_PER_PAGE) || '10') as
+            | 10
+            | 20)
         : 10;
 
     return {
