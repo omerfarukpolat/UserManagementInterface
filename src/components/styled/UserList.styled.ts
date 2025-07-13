@@ -2,12 +2,19 @@ import styled from 'styled-components';
 
 export const UserListContainer = styled.div`
   height: 100vh;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
   background-color: #f5f5f5;
+  position: fixed;
+  top: 0;
+  left: 0;
+  overflow: hidden;
   @media (max-width: 600px) {
-    height: auto;
-    min-height: 100vh;
+    height: 100vh;
+    width: 100vw;
   }
 `;
 
@@ -158,9 +165,10 @@ export const ToggleInput = styled.input`
 
 export const ContentArea = styled.main`
   flex: 1;
-  overflow: hidden;
+  overflow: auto;
   display: flex;
   flex-direction: column;
+  min-height: 0;
   @media (max-width: 600px) {
     padding: 0;
   }
@@ -173,6 +181,8 @@ export const UserGrid = styled.div`
   padding: 1rem;
   overflow-y: auto;
   height: 100%;
+  min-height: 0;
+  flex: 1;
   @media (max-width: 600px) {
     grid-template-columns: 1fr;
     gap: 0.5rem;

@@ -1,11 +1,13 @@
 import styled from 'styled-components';
 
 export const VirtualScrollContainer = styled.div`
-  height: 600px;
+  height: 100%;
   overflow-y: auto;
   position: relative;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
+  flex: 1;
+  min-height: 0;
 `;
 
 export const VirtualContentWrapper = styled.div<{ totalHeight: number }>`
@@ -22,12 +24,14 @@ export const VirtualItemsContainer = styled.div<{ translateY: number }>`
 `;
 
 export const VirtualTableContainer = styled.div`
-  height: 600px;
+  height: 100%;
   overflow-y: auto;
   position: relative;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   background-color: #fff;
+  flex: 1;
+  min-height: 0;
 `;
 
 export const EnhancedTable = styled.table`

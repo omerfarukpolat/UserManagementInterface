@@ -84,7 +84,7 @@ const MainPageComponent: React.FC<MainPageComponentProps> = ({
         ? filteredUsers
         : paginatedUsers,
     itemHeight: 60,
-    containerHeight: 600,
+    containerHeight: window.innerHeight - 200,
     overscan: 10,
   });
 
@@ -94,7 +94,7 @@ const MainPageComponent: React.FC<MainPageComponentProps> = ({
         ? filteredUsers
         : paginatedUsers,
     itemHeight: 200,
-    containerHeight: 600,
+    containerHeight: window.innerHeight - 200,
     overscan: 5,
   });
 
