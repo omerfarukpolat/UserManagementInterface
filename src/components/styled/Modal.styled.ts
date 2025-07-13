@@ -17,12 +17,12 @@ export const ModalContent = styled.div`
   background: white;
   border-radius: 12px;
   padding: 2rem 2.5rem;
-  min-width: 350px;
+  width: 450px;
   max-width: 90vw;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
   position: relative;
+  overflow: hidden;
   @media (max-width: 600px) {
-    min-width: 0;
     width: 98vw;
     padding: 1rem 0.5rem;
     border-radius: 8px;

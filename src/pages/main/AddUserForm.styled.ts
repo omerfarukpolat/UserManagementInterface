@@ -2,22 +2,31 @@ import styled from 'styled-components';
 
 export const Form = styled.form`
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   @media (max-width: 600px) {
     max-width: 100%;
     box-sizing: border-box;
   }
 `;
+
 export const FormTitle = styled.h2`
   margin-bottom: 1.5rem;
+  word-wrap: break-word;
 `;
+
 export const FormGroup = styled.div`
   margin-bottom: 1rem;
+  width: 100%;
 `;
+
 export const Label = styled.label`
   display: block;
   font-weight: 500;
   margin-bottom: 0.25rem;
+  word-wrap: break-word;
 `;
+
 export const Input = styled.input`
   width: 100%;
   padding: 0.5rem 0.75rem;
@@ -33,6 +42,7 @@ export const Input = styled.input`
     max-width: 100%;
   }
 `;
+
 export const Select = styled.select`
   width: 100%;
   padding: 0.5rem 0.75rem;
@@ -54,6 +64,9 @@ export const ErrorText = styled.div`
   color: #e74c3c;
   font-size: 0.85rem;
   margin-top: 0.2rem;
+  word-wrap: break-word;
+  line-height: 1.3;
+  max-width: 100%;
 `;
 export const ButtonGroup = styled.div`
   display: flex;
