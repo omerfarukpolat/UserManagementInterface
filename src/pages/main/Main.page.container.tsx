@@ -41,7 +41,6 @@ const MainPageContainer: React.FC = () => {
       } else {
         loadedUsers = localUsersArr;
       }
-      console.log('LocalStorage users:', loadedUsers);
       dispatch(setUsers(loadedUsers));
       setIsLoading(false);
     }, 100);
@@ -50,20 +49,19 @@ const MainPageContainer: React.FC = () => {
 
   useEffect(() => {
     if (!isLoading) {
-      console.log('Redux users:', users);
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(users));
     }
   }, [users, isLoading]);
 
-  // Debounced search function
   const debouncedSearch = useCallback(
     debounce((searchValue: string) => {
-      updateFilters({ search: searchValue, currentPage: 1 });
+      if (filters.paginationMode === 'all') {
+        updateFilters({ search: searchValue, currentPage: 1 });
+      }
     }, 300),
     [updateFilters]
   );
 
-  // Update search term immediately for UI responsiveness
   useEffect(() => {
     debouncedSearch(searchTerm);
     return () => {
@@ -71,20 +69,17 @@ const MainPageContainer: React.FC = () => {
     };
   }, [searchTerm, debouncedSearch]);
 
-  // Optimized filtering with early returns and case-insensitive search
   const filteredUsers = useMemo(() => {
     if (users.length === 0) return [];
 
     const searchLower = filters.search.toLowerCase().trim();
     const roleFilter = filters.role;
 
-    // If no filters applied, return all users
     if (!searchLower && roleFilter === 'all') {
       return users;
     }
 
     return users.filter(user => {
-      // Role filter first (usually faster)
       if (roleFilter !== 'all' && user.role !== roleFilter) {
         return false;
       }
@@ -100,7 +95,6 @@ const MainPageContainer: React.FC = () => {
     });
   }, [users, filters.search, filters.role]);
 
-  // Optimized pagination with early return
   const paginatedUsers = useMemo(() => {
     if (filters.paginationMode === 'all') {
       return filteredUsers;
@@ -118,7 +112,6 @@ const MainPageContainer: React.FC = () => {
 
   const totalPages = Math.ceil(filteredUsers.length / filters.itemsPerPage);
 
-  // Optimized event handlers with useCallback
   const handleSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
