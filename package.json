@@ -36,7 +36,9 @@
     "lint:fix": "eslint src --ext .js,.jsx,.ts,.tsx --fix",
     "lint:check": "eslint src --ext .js,.jsx,.ts,.tsx --max-warnings 0",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css,md}\"",
-    "format:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,json,css,md}\""
+    "format:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,json,css,md}\"",
+    "deploy": "npm run build && netlify deploy --prod --dir=build",
+    "deploy:preview": "npm run build && netlify deploy --dir=build"
   },
   "eslintConfig": {
     "extends": [
