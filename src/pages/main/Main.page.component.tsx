@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   UserListContainer,
   Header,
@@ -77,6 +77,19 @@ const MainPageComponent: React.FC<MainPageComponentProps> = ({
   onAddUserClick,
 }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [containerHeight, setContainerHeight] = useState(600);
+
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      const resizeObserver = new ResizeObserver(entries => {
+        for (const entry of entries) {
+          setContainerHeight(entry.contentRect.height);
+        }
+      });
+      resizeObserver.observe(scrollContainerRef.current);
+      return () => resizeObserver.disconnect();
+    }
+  }, []);
 
   const tableVirtual = useVirtualScrolling({
     items:
@@ -84,7 +97,7 @@ const MainPageComponent: React.FC<MainPageComponentProps> = ({
         ? filteredUsers
         : paginatedUsers,
     itemHeight: 60,
-    containerHeight: 600,
+    containerHeight: containerHeight - 100,
     overscan: 10,
   });
 
@@ -94,8 +107,8 @@ const MainPageComponent: React.FC<MainPageComponentProps> = ({
         ? filteredUsers
         : paginatedUsers,
     itemHeight: 200,
-    containerHeight: 600,
-    overscan: 5,
+    containerHeight: containerHeight - 100,
+    overscan: 25,
   });
 
   const formatDate = (dateString: string) => {
@@ -106,14 +119,17 @@ const MainPageComponent: React.FC<MainPageComponentProps> = ({
     });
   };
 
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const scrollTop = e.currentTarget.scrollTop;
-    if (filters.viewMode === VIEW_MODE.TABLE) {
-      tableVirtual.setScrollTop(scrollTop);
-    } else {
-      cardVirtual.setScrollTop(scrollTop);
-    }
-  };
+  const handleScroll = useCallback(
+    (e: React.UIEvent<HTMLDivElement>) => {
+      const scrollTop = e.currentTarget.scrollTop;
+      if (filters.viewMode === VIEW_MODE.TABLE) {
+        tableVirtual.setScrollTop(scrollTop);
+      } else {
+        cardVirtual.setScrollTop(scrollTop);
+      }
+    },
+    [filters.viewMode, tableVirtual, cardVirtual]
+  );
 
   if (isLoading) {
     return (
@@ -206,6 +222,7 @@ const MainPageComponent: React.FC<MainPageComponentProps> = ({
             <VirtualScrollContainer
               ref={scrollContainerRef}
               onScroll={handleScroll}
+              height={containerHeight - 100}
             >
               <VirtualContentWrapper totalHeight={cardVirtual.totalHeight}>
                 <VirtualItemsContainer
@@ -226,7 +243,10 @@ const MainPageComponent: React.FC<MainPageComponentProps> = ({
             </VirtualScrollContainer>
           ) : (
             <UserGrid>
-              {paginatedUsers.map(user => (
+              {(filters.paginationMode === PAGINATION_MODE.ALL
+                ? filteredUsers
+                : paginatedUsers
+              ).map(user => (
                 <UserCard
                   key={user.id}
                   user={user}
@@ -236,7 +256,10 @@ const MainPageComponent: React.FC<MainPageComponentProps> = ({
             </UserGrid>
           )
         ) : shouldUseVirtualScrolling ? (
-          <VirtualTableContainer onScroll={handleScroll}>
+          <VirtualTableContainer
+            onScroll={handleScroll}
+            height={containerHeight - 100}
+          >
             <EnhancedTable>
               <EnhancedTableHeader>
                 <EnhancedTableHeaderRow>
@@ -321,7 +344,10 @@ const MainPageComponent: React.FC<MainPageComponentProps> = ({
                 </EnhancedTableHeaderRow>
               </EnhancedTableHeader>
               <EnhancedTableBody>
-                {paginatedUsers.map(user => (
+                {(filters.paginationMode === PAGINATION_MODE.ALL
+                  ? filteredUsers
+                  : paginatedUsers
+                ).map(user => (
                   <EnhancedTableRow key={user.id}>
                     <EnhancedTableCell align='left'>
                       {user.name}

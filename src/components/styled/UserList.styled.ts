@@ -179,10 +179,6 @@ export const UserGrid = styled.div`
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1rem;
   padding: 1rem;
-  overflow-y: auto;
-  height: 100%;
-  min-height: 0;
-  flex: 1;
   @media (max-width: 600px) {
     grid-template-columns: 1fr;
     gap: 0.5rem;

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 
 interface UseVirtualScrollingProps<T> {
   items: T[];
@@ -35,7 +35,10 @@ export function useVirtualScrolling<T>({
 
   const virtualItems = useMemo(() => {
     if (items.length === 0) return [];
-    return items.slice(startIndex, endIndex + 1);
+    if (items.length <= endIndex + 250) {
+      return items.slice(startIndex, endIndex + 1);
+    }
+    return items.slice(startIndex, endIndex + 250);
   }, [items, startIndex, endIndex]);
 
   const totalHeight = useMemo(() => {
@@ -45,12 +48,6 @@ export function useVirtualScrolling<T>({
   const setScrollTopCallback = useCallback((newScrollTop: number) => {
     setScrollTop(newScrollTop);
   }, []);
-
-  useEffect(() => {
-    if (items.length === 0) {
-      setScrollTop(0);
-    }
-  }, [items.length]);
 
   return {
     virtualItems,

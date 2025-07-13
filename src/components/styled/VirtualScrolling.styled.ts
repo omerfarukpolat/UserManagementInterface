@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
-export const VirtualScrollContainer = styled.div`
-  height: 100%;
+export const VirtualScrollContainer = styled.div<{ height?: number }>`
+  height: ${props => props.height || '100%'};
   overflow-y: auto;
   position: relative;
   border: 1px solid #e0e0e0;
@@ -23,8 +23,8 @@ export const VirtualItemsContainer = styled.div<{ translateY: number }>`
   right: 0;
 `;
 
-export const VirtualTableContainer = styled.div`
-  height: 100%;
+export const VirtualTableContainer = styled.div<{ height?: number }>`
+  height: ${props => props.height || '100%'};
   overflow-y: auto;
   position: relative;
   border: 1px solid #e0e0e0;
