@@ -17,12 +17,18 @@ export const useUrlParams = () => {
       (searchParams.get(SEARCH_PARAMS.PAGINATION_MODE) as
         | typeof PAGINATION_MODE.PAGINATED
         | typeof PAGINATION_MODE.ALL) || PAGINATION_MODE.PAGINATED;
+    
     const currentPage =
       paginationMode === PAGINATION_MODE.PAGINATED
         ? currentPageParam
           ? parseInt(currentPageParam)
           : 1
         : 1;
+    
+    const itemsPerPage =
+      paginationMode === PAGINATION_MODE.PAGINATED
+        ? parseInt(searchParams.get(SEARCH_PARAMS.ITEMS_PER_PAGE) || '10') as 10 | 20
+        : 10;
 
     return {
       search: searchParams.get(SEARCH_PARAMS.SEARCH) || '',
@@ -35,9 +41,7 @@ export const useUrlParams = () => {
           | typeof VIEW_MODE.TABLE
           | typeof VIEW_MODE.CARD) || VIEW_MODE.TABLE,
       paginationMode,
-      itemsPerPage: parseInt(
-        searchParams.get(SEARCH_PARAMS.ITEMS_PER_PAGE) || '10'
-      ) as 10 | 20,
+      itemsPerPage,
       currentPage,
     };
   }, [searchParams]);
@@ -56,12 +60,13 @@ export const useUrlParams = () => {
         params.set(SEARCH_PARAMS.VIEW_MODE, mergedFilters.viewMode);
       if (mergedFilters.paginationMode !== PAGINATION_MODE.PAGINATED)
         params.set(SEARCH_PARAMS.PAGINATION_MODE, mergedFilters.paginationMode);
-      if (mergedFilters.itemsPerPage !== 10)
-        params.set(
-          SEARCH_PARAMS.ITEMS_PER_PAGE,
-          mergedFilters.itemsPerPage.toString()
-        );
+      // itemsPerPage ve currentPage'i sadece pagination açıkken URL'e ekle
       if (mergedFilters.paginationMode === PAGINATION_MODE.PAGINATED) {
+        if (mergedFilters.itemsPerPage !== 10)
+          params.set(
+            SEARCH_PARAMS.ITEMS_PER_PAGE,
+            mergedFilters.itemsPerPage.toString()
+          );
         params.set(
           SEARCH_PARAMS.CURRENT_PAGE,
           mergedFilters.currentPage.toString()
