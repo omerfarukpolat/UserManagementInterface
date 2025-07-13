@@ -1,17 +1,20 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
-  SEARCH_PARAMS,
   PAGINATION_MODE,
-  VIEW_MODE,
+  SEARCH_PARAMS,
   USER_ROLE,
+  VIEW_MODE,
 } from '../constants/filters';
 import { UserFilters, UserRole } from '../types/user.types';
 
 export const useUrlParams = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const getFiltersFromUrl = useCallback((): UserFilters => {
+  const filters = useMemo((): UserFilters => {
+    const currentPageParam = searchParams.get(SEARCH_PARAMS.CURRENT_PAGE);
+    const currentPage = currentPageParam ? parseInt(currentPageParam) : 1;
+
     return {
       search: searchParams.get(SEARCH_PARAMS.SEARCH) || '',
       role:
@@ -29,45 +32,40 @@ export const useUrlParams = () => {
       itemsPerPage: parseInt(
         searchParams.get(SEARCH_PARAMS.ITEMS_PER_PAGE) || '10'
       ) as 10 | 20,
-      currentPage: parseInt(
-        searchParams.get(SEARCH_PARAMS.CURRENT_PAGE) || '1'
-      ),
+      currentPage,
     };
   }, [searchParams]);
 
   const updateFiltersInUrl = useCallback(
-    (filters: Partial<UserFilters>) => {
-      const currentFilters = getFiltersFromUrl();
-      const newFilters = { ...currentFilters, ...filters };
+    (newFilters: Partial<UserFilters>) => {
+      const mergedFilters = { ...filters, ...newFilters };
 
       const params = new URLSearchParams();
 
-      if (newFilters.search)
-        params.set(SEARCH_PARAMS.SEARCH, newFilters.search);
-      if (newFilters.role !== USER_ROLE.ALL)
-        params.set(SEARCH_PARAMS.ROLE, newFilters.role);
-      if (newFilters.viewMode !== VIEW_MODE.TABLE)
-        params.set(SEARCH_PARAMS.VIEW_MODE, newFilters.viewMode);
-      if (newFilters.paginationMode !== PAGINATION_MODE.PAGINATED)
-        params.set(SEARCH_PARAMS.PAGINATION_MODE, newFilters.paginationMode);
-      if (newFilters.itemsPerPage !== 10)
+      if (mergedFilters.search)
+        params.set(SEARCH_PARAMS.SEARCH, mergedFilters.search);
+      if (mergedFilters.role !== USER_ROLE.ALL)
+        params.set(SEARCH_PARAMS.ROLE, mergedFilters.role);
+      if (mergedFilters.viewMode !== VIEW_MODE.TABLE)
+        params.set(SEARCH_PARAMS.VIEW_MODE, mergedFilters.viewMode);
+      if (mergedFilters.paginationMode !== PAGINATION_MODE.PAGINATED)
+        params.set(SEARCH_PARAMS.PAGINATION_MODE, mergedFilters.paginationMode);
+      if (mergedFilters.itemsPerPage !== 10)
         params.set(
           SEARCH_PARAMS.ITEMS_PER_PAGE,
-          newFilters.itemsPerPage.toString()
+          mergedFilters.itemsPerPage.toString()
         );
-      if (newFilters.currentPage !== 1)
-        params.set(
-          SEARCH_PARAMS.CURRENT_PAGE,
-          newFilters.currentPage.toString()
-        );
-
+      params.set(
+        SEARCH_PARAMS.CURRENT_PAGE,
+        mergedFilters.currentPage.toString()
+      );
       setSearchParams(params);
     },
-    [getFiltersFromUrl, setSearchParams]
+    [filters, setSearchParams]
   );
 
   return {
-    filters: getFiltersFromUrl(),
+    filters,
     updateFilters: updateFiltersInUrl,
   };
 };
