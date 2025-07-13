@@ -130,7 +130,7 @@ const MainPageComponent: React.FC<MainPageComponentProps> = ({
   return (
     <UserListContainer>
       <Header>
-        <HeaderTitle>User List ({filteredUsers.length} users)</HeaderTitle>
+        <HeaderTitle>User List)</HeaderTitle>
       </Header>
 
       <ControlsSection>
